@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "736182638459",
+    "firebase_url": "https://door-opener-a3c06-default-rtdb.firebaseio.com",
+    "project_id": "door-opener-a3c06",
+    "storage_bucket": "door-opener-a3c06.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:736182638459:android:440b6a4132c45fe8958fde",
+        "android_client_info": {
+          "package_name": "com.example.door_opener"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "736182638459-fcd3l07ei370931d25e68rel4j841a1h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHbx-inAm1zjwKc6ABEAnYmD6S9kKLQVk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "736182638459-fcd3l07ei370931d25e68rel4j841a1h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:736182638459:android:46f4bcd5864296b4958fde",
+        "android_client_info": {
+          "package_name": "com.example.door_opener_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "736182638459-fcd3l07ei370931d25e68rel4j841a1h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHbx-inAm1zjwKc6ABEAnYmD6S9kKLQVk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "736182638459-fcd3l07ei370931d25e68rel4j841a1h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
