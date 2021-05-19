@@ -25,10 +25,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   // Retrive the list of logs when the user open door
-  void getList() {
-    print('loading');
+  Future getList() async {
     try {
-      databaseReference
+      await databaseReference
           .child("door-opener-a3c06-default-rtdb/Images")
           .once()
           .then((DataSnapshot dataSnapshot) {
@@ -40,18 +39,23 @@ class _MyHomePageState extends State<MyHomePage> {
               data: values["data"],
               timestamp: values["timestamp"]));
         });
-        setState(() {});
       });
+      setState(() {});
     } catch (e) {
       //TODO: Add error loading view 
       print(e);
     }
   }
 
+  Future refreshLogList () async {
+    logs = new List();
+    await getList();
+  }
+
   void deleteData(String href) {
     try {
       databaseReference
-          .child("door-opener-a3c06-default-rtdb/Images" + href)
+          .child("door-opener-a3c06-default-rtdb/Images/" + href)
           .remove();
       logs.removeWhere((element) => element.href == href);
       setState(() {
@@ -99,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: new Card(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
                   child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
@@ -120,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
       )),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.refresh),
-        onPressed: getList,
+        onPressed: refreshLogList,
       ),
     );
   }

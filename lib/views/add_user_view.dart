@@ -112,18 +112,13 @@ class _AddUserViewState extends State<AddUserView> {
       setState(() {
         selectedPhoto = croppedImageFile;
       });
-      // Uint8List imageBytes =
-      //     await widget.global.fileReadAsBytes(croppedImageFile);
     } else {
       print("No image selected.");
     }
   }
 
-  void saveUser() {
-    final bytes = selectedPhoto.readAsBytesSync();
-    String img64 = base64Encode(bytes);
-    print(bytes);
-    widget.onSave(controller.text, img64);
+  void saveUser() async {
+    await widget.onSave(controller.text, selectedPhoto);
   }
 
   @override
@@ -162,6 +157,7 @@ class _AddUserViewState extends State<AddUserView> {
               padding: EdgeInsets.symmetric(vertical: 10.0),
               child: Text('Photo'),
             ),
+            SizedBox(height: 20,),
             Center(
               child: selectedPhoto == null
                   ? Text('No image selected.')
@@ -171,22 +167,30 @@ class _AddUserViewState extends State<AddUserView> {
                       height: 200,
                     ),
             ),
+            SizedBox(height: 20,),
             IconButton(
                 icon: Icon(
                   Icons.upload_file,
                   size: 40.0,
                 ),
-                onPressed: uploadPhoto),
+                onPressed: () {
+                  FocusScope.of(context).unfocus();
+                  uploadPhoto();
+                }),
+            SizedBox(height: 40,),
             FlatButton(
                 onPressed: () {
                   saveUser();
                   Navigator.of(context).pop();
                 },
                 child: Container(
+                  width: 120,
+                  height: 40,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4.0),
+                    border: Border.all(color: Colors.black)
                   ),
-                  child: Text('Create'),
+                  child: Center(child: Text('Create')),
                 ))
           ],
         ),

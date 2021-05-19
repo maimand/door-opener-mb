@@ -1,7 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.door_opener_mobile">
+    <uses-permission android:name="android.permission.INTERNET" />
    <application
         android:label="door_opener_mobile"
+        android:networkSecurityConfig="@xml/network_security_config">
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
@@ -18,6 +20,9 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <meta-data
+              android:name="io.flutter.network-policy"
+              android:resource="@xml/network_security_config"/>  
             <!-- Displays an Android View that continues showing the launch screen
                  Drawable until Flutter paints its first frame, then this splash
                  screen fades out. A splash screen is useful to avoid any visual
