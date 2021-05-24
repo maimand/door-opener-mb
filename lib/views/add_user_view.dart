@@ -1,7 +1,5 @@
-import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_crop/image_crop.dart';
@@ -90,7 +88,8 @@ class _AddUserViewState extends State<AddUserView> {
 
   Future pickImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.getImage(source: ImageSource.camera);
+    final pickedFile =
+        await picker.getImage(source: ImageSource.camera, imageQuality: 50);
     setState(() {
       if (pickedFile != null) {
         selectedPhoto = File(pickedFile.path);
@@ -100,7 +99,7 @@ class _AddUserViewState extends State<AddUserView> {
     });
   }
 
-  void uploadPhoto() async {
+  Future uploadPhoto() async {
     await pickImage();
     if (selectedPhoto != null) {
       Map cropData = await getImageCropperCropData(
@@ -117,7 +116,7 @@ class _AddUserViewState extends State<AddUserView> {
     }
   }
 
-  void saveUser() async {
+  Future saveUser() async {
     await widget.onSave(controller.text, selectedPhoto);
   }
 
@@ -125,78 +124,101 @@ class _AddUserViewState extends State<AddUserView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('New Users'),
+        title: Text('Add New Users'),
       ),
       body: GestureDetector(
-        onTap: FocusScope.of(context).unfocus,
-        child: Column(
-          children: [
-            Container(
-              alignment: Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(vertical: 10.0),
-              child: Text('Name'),
-            ),
-            Container(
+        onTap: focusNode.unfocus,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
                 alignment: Alignment.centerLeft,
                 padding: EdgeInsets.symmetric(vertical: 10.0),
-                child: TextFormField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  keyboardType: TextInputType.name,
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.fromLTRB(16, 8, 48, 8),
-                      hintText: 'Name',
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                          borderSide: BorderSide(
-                            width: 1.0,
-                          ))),
-                )),
-            Container(
-              alignment: Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(vertical: 10.0),
-              child: Text('Photo'),
-            ),
-            SizedBox(height: 20,),
-            Center(
-              child: selectedPhoto == null
-                  ? Text('No image selected.')
-                  : Image.file(
-                      selectedPhoto,
-                      width: 200,
-                      height: 200,
-                    ),
-            ),
-            SizedBox(height: 20,),
-            IconButton(
-                icon: Icon(
-                  Icons.upload_file,
-                  size: 40.0,
+                child: Text(
+                  'Name',
+                  style: TextStyle(fontSize: 16),
                 ),
-                onPressed: () {
-                  FocusScope.of(context).unfocus();
-                  uploadPhoto();
-                }),
-            SizedBox(height: 40,),
-            FlatButton(
-                onPressed: () {
-                  saveUser();
-                  Navigator.of(context).pop();
-                },
-                child: Container(
-                  width: 120,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4.0),
-                    border: Border.all(color: Colors.black)
+              ),
+              Container(
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.symmetric(vertical: 10.0),
+                  child: TextFormField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    keyboardType: TextInputType.name,
+                    // decoration: InputDecoration(
+                    //     // contentPadding: EdgeInsets.fromLTRB(16, 8, 48, 8),
+                    //     focusedBorder: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(4.0),
+                    //     )),
+                  )),
+              Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+                child: Text('Photo', style: TextStyle(fontSize: 16)),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Column(
+                children: [
+                  selectedPhoto == null
+                      ? Row(children: [
+                          Text(
+                            'No image selected.',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ])
+                      : Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                  fit: BoxFit.fill,
+                                  image: FileImage(selectedPhoto))),
+                        )
+                ],
+              ),
+              SizedBox(
+                height: 40,
+              ),
+              IconButton(
+                  icon: Icon(
+                    Icons.upload_file,
+                    size: 32.0,
                   ),
-                  child: Center(child: Text('Create')),
-                ))
-          ],
+                  onPressed: () {
+                    FocusScope.of(context).unfocus();
+                    uploadPhoto();
+                  }),
+              SizedBox(
+                height: 40,
+              ),
+              Center(
+                child: FlatButton(
+                    onPressed: () async {
+                      await saveUser();
+                      Navigator.of(context).pop();
+                    },
+                    child: Container(
+                      width: 180,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: Center(
+                          child: Text('Create',
+                              style: TextStyle(color: Colors.white))),
+                    )),
+              )
+            ],
+          ),
         ),
       ),
     );
   }
-
-  
 }

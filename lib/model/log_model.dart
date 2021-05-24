@@ -19,4 +19,5 @@ class Log {
     data['data'] = this.data;
     return data;
   }
+
 }

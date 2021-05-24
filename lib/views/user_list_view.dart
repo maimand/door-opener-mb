@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:door_opener/model/user.dart';
+import 'package:door_opener/services/firebase.dart';
 import 'package:door_opener/services/service.dart';
 import 'package:door_opener/views/add_user_view.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:door_opener/widgets/user_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 // ignore: must_be_immutable
 class UserList extends StatefulWidget {
-  DatabaseReference databaseReference;
-  UserList({this.databaseReference, key}) : super(key: key);
+  UserList({key}) : super(key: key);
 
   @override
   _UserListState createState() => _UserListState();
@@ -18,6 +18,8 @@ class UserList extends StatefulWidget {
 
 class _UserListState extends State<UserList> {
   List<User> users = new List();
+  bool isLoading = true;
+  final SlidableController slidableController = SlidableController();
 
   @override
   void initState() {
@@ -27,34 +29,38 @@ class _UserListState extends State<UserList> {
   }
 
   Future getList() async {
-    print('loading user list');
+    setState(() {
+      isLoading = true;
+    });
     try {
-      await widget.databaseReference
-          .child("door-opener-a3c06-default-rtdb/user")
-          .once()
-          .then((DataSnapshot dataSnapshot) {
-        Map<dynamic, dynamic> values = dataSnapshot.value;
-        values.forEach((key, values) {
-          users.add(new User(name: values["name"], data: values["data"]));
-        });
-      });
-      print('loaded');
+      users = await FirebaseServicce.fetchUsers();
       setState(() {
+        isLoading = false;
       });
     } catch (e) {
-      // TODO
+      print(e);
+    }
+  }
+
+  void deleteData(String name, String href) {
+    try {
+      Service.deleteUser(name, href);
+      setState(() {
+        users.removeWhere((element) => element.href == href);
+      });
+    } catch (e) {
       print(e);
     }
   }
 
   Future saveUser(String name, File file) async {
     try {
-      await Service.createUser(name, file);
-      final bytes = file.readAsBytesSync();
-      String img64 = base64Encode(bytes);
-      users.add(new User(name: name, data: img64));
       setState(() {
+        final bytes = file.readAsBytesSync();
+        String img64 = base64Encode(bytes);
+        users.add(new User(name: name, data: img64));
       });
+      await Service.createUser(name, file);
     } catch (e) {
       // TODO : add snack bar to show toast
       print(e);
@@ -62,7 +68,9 @@ class _UserListState extends State<UserList> {
   }
 
   Future refreshUserList() async {
-    users = new List();
+    setState(() {
+      users.clear();
+    });
     await getList();
   }
 
@@ -85,29 +93,38 @@ class _UserListState extends State<UserList> {
         title: Text('Users'),
       ),
       body: Center(
-          child: new ListView.builder(
-        itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: new Card(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: new Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    new Text(
-                      users[index].name,
-                      style: TextStyle(fontSize: 14),
-                    ),
-                    new Image.memory(base64Decode(users[index].data)),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-        itemCount: users == null ? 0 : users.length,
-      )),
+          child: isLoading
+              ? SizedBox(
+                  child: CircularProgressIndicator(),
+                  width: 60,
+                  height: 60,
+                )
+              : users.isEmpty
+                  ? Text(
+                      'Empty user list',
+                      style: TextStyle(
+                        color: Colors.black26,
+                        fontSize: 18,
+                      ),
+                    )
+                  : ListView.builder(
+                      itemBuilder: (BuildContext context, int index) {
+                        return GestureDetector(
+                          onLongPress: () {
+                            Service.deleteUser(
+                                users[index].name, users[index].href);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: UserCard(
+                                user: users[index],
+                                slidableController: slidableController,
+                                onDelete: deleteData),
+                          ),
+                        );
+                      },
+                      itemCount: users == null ? 0 : users.length,
+                    )),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.refresh),
         onPressed: refreshUserList,
