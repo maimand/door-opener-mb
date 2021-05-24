@@ -29,7 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // Retrive the list of logs when the user open door
   Future getList() async {
     setState(() {
-          isLoading = true;
+      isLoading = true;
     });
     try {
       logs = await FirebaseServicce.fetchLogs();
@@ -51,10 +51,18 @@ class _MyHomePageState extends State<MyHomePage> {
       FirebaseServicce.deleteLogs(href);
       setState(() {
         logs.removeWhere((element) => element.href == href);
+        showSnackBar();
       });
     } catch (e) {
       print(e);
     }
+  }
+
+  showSnackBar() {
+    final snackBar = SnackBar(
+      content: Text('Deleted log'),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override

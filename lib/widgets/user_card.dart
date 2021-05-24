@@ -25,10 +25,7 @@ class UserCard extends StatelessWidget {
       actionExtentRatio: 0.3,
       secondaryActions: <Widget>[
         GestureDetector(
-          onTap: () => new PopUp(context,
-                  text: 'Do you want to delete this log?',
-                  onConfirm: onDelete(user.name, user.href))
-              .showOptions(),
+          onTap: () => onDelete(user.name, user.href),
           child: Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(

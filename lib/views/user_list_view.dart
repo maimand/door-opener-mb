@@ -47,6 +47,7 @@ class _UserListState extends State<UserList> {
       Service.deleteUser(name, href);
       setState(() {
         users.removeWhere((element) => element.href == href);
+        showSnackBar();
       });
     } catch (e) {
       print(e);
@@ -72,6 +73,13 @@ class _UserListState extends State<UserList> {
       users.clear();
     });
     await getList();
+  }
+
+  showSnackBar() {
+    final snackBar = SnackBar(
+      content: Text('Deleted user'),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override

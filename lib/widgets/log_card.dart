@@ -20,7 +20,7 @@ class LogCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Slidable(
-        controller: slidableController,
+      controller: slidableController,
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.3,
       secondaryActions: <Widget>[
