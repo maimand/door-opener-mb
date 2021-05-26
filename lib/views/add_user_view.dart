@@ -17,11 +17,13 @@ class _AddUserViewState extends State<AddUserView> {
   TextEditingController controller;
   FocusNode focusNode;
   File selectedPhoto;
+  bool isSaving;
 
   @override
   void initState() {
     super.initState();
     controller = new TextEditingController();
+    isSaving = false;
     focusNode = new FocusNode();
   }
 
@@ -117,6 +119,9 @@ class _AddUserViewState extends State<AddUserView> {
   }
 
   Future saveUser() async {
+    setState(() {
+      isSaving = true;
+    });
     await widget.onSave(controller.text, selectedPhoto);
   }
 
@@ -128,96 +133,112 @@ class _AddUserViewState extends State<AddUserView> {
       ),
       body: GestureDetector(
         onTap: focusNode.unfocus,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(vertical: 10.0),
-                child: Text(
-                  'Name',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-              Container(
+        child: Stack(alignment: AlignmentDirectional.center, children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
                   alignment: Alignment.centerLeft,
                   padding: EdgeInsets.symmetric(vertical: 10.0),
-                  child: TextFormField(
-                    controller: controller,
-                    focusNode: focusNode,
-                    keyboardType: TextInputType.name,
-                    // decoration: InputDecoration(
-                    //     // contentPadding: EdgeInsets.fromLTRB(16, 8, 48, 8),
-                    //     focusedBorder: OutlineInputBorder(
-                    //       borderRadius: BorderRadius.circular(4.0),
-                    //     )),
-                  )),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(vertical: 10.0),
-                child: Text('Photo', style: TextStyle(fontSize: 16)),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Column(
-                children: [
-                  selectedPhoto == null
-                      ? Row(children: [
-                          Text(
-                            'No image selected.',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ])
-                      : Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                  fit: BoxFit.fill,
-                                  image: FileImage(selectedPhoto))),
-                        )
-                ],
-              ),
-              SizedBox(
-                height: 40,
-              ),
-              IconButton(
-                  icon: Icon(
-                    Icons.upload_file,
-                    size: 32.0,
+                  child: Text(
+                    'Name',
+                    style: TextStyle(fontSize: 16),
                   ),
-                  onPressed: () {
-                    FocusScope.of(context).unfocus();
-                    uploadPhoto();
-                  }),
-              SizedBox(
-                height: 40,
-              ),
-              Center(
-                child: FlatButton(
-                    onPressed: () async {
-                      await saveUser();
-                      Navigator.of(context).pop();
-                    },
-                    child: Container(
-                      width: 180,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                      child: Center(
-                          child: Text('Create',
-                              style: TextStyle(color: Colors.white))),
+                ),
+                Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.symmetric(vertical: 10.0),
+                    child: TextFormField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      keyboardType: TextInputType.name,
+                      // decoration: InputDecoration(
+                      //     // contentPadding: EdgeInsets.fromLTRB(16, 8, 48, 8),
+                      //     focusedBorder: OutlineInputBorder(
+                      //       borderRadius: BorderRadius.circular(4.0),
+                      //     )),
                     )),
-              )
-            ],
+                Container(
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.symmetric(vertical: 10.0),
+                  child: Text('Photo', style: TextStyle(fontSize: 16)),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Column(
+                  children: [
+                    selectedPhoto == null
+                        ? Row(children: [
+                            Text(
+                              'No image selected.',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ])
+                        : Container(
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    fit: BoxFit.fill,
+                                    image: FileImage(selectedPhoto))),
+                          )
+                  ],
+                ),
+                SizedBox(
+                  height: 40,
+                ),
+                IconButton(
+                    icon: Icon(
+                      Icons.upload_file,
+                      size: 32.0,
+                    ),
+                    onPressed: () {
+                      FocusScope.of(context).unfocus();
+                      uploadPhoto();
+                    }),
+                SizedBox(
+                  height: 40,
+                ),
+                Center(
+                  child: FlatButton(
+                      onPressed: () async {
+                        await saveUser();
+                        Navigator.of(context).pop();
+                      },
+                      child: Container(
+                        width: 180,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                        child: Center(
+                            child: Text('Create',
+                                style: TextStyle(color: Colors.white))),
+                      )),
+                )
+              ],
+            ),
           ),
-        ),
+          isSaving
+              ? Container(
+                height: double.infinity,
+                width: double.infinity,
+                decoration: BoxDecoration(color: Colors.black45.withOpacity(0.3)),
+                child: Center(
+                  child: SizedBox(
+                      child: CircularProgressIndicator(),
+                      width: 60,
+                      height: 60,
+                  ),
+                ),
+              )
+              : Container()
+        ]),
       ),
     );
   }
