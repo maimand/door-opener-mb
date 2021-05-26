@@ -58,7 +58,6 @@ class FirebaseServicce {
           });
         }
       });
-      print('loaded');
     } catch (e) {
       // TODO
       print(e);

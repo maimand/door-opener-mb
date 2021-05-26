@@ -24,7 +24,6 @@ class _UserListState extends State<UserList> {
   @override
   void initState() {
     super.initState();
-    print('init');
     getList();
   }
 
@@ -47,7 +46,7 @@ class _UserListState extends State<UserList> {
       Service.deleteUser(name, href);
       setState(() {
         users.removeWhere((element) => element.href == href);
-        showSnackBar();
+        showSnackBar("Deleted user", Colors.redAccent);
       });
     } catch (e) {
       print(e);
@@ -56,16 +55,27 @@ class _UserListState extends State<UserList> {
 
   Future saveUser(String name, File file) async {
     try {
+      await Service.createUser(name, file);
       setState(() {
         final bytes = file.readAsBytesSync();
         String img64 = base64Encode(bytes);
         users.add(new User(name: name, data: img64));
+        showSnackBar("Created user", Colors.greenAccent);
       });
-      await Service.createUser(name, file);
+
     } catch (e) {
       // TODO : add snack bar to show toast
       print(e);
     }
+  }
+
+  showSnackBar(String message, Color color) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      backgroundColor: color,
+      duration: Duration(milliseconds: 500),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Future refreshUserList() async {
@@ -75,12 +85,6 @@ class _UserListState extends State<UserList> {
     await getList();
   }
 
-  showSnackBar() {
-    final snackBar = SnackBar(
-      content: Text('Deleted user'),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
 
   @override
   Widget build(BuildContext context) {
