@@ -32,9 +32,9 @@ class LogDetail extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Who : " + log.name, style: TextStyle(fontSize: 14)),
+                Text("Who : " + log.name, style: TextStyle(fontSize: 20)),
                 Text("When: " + TimeUtility.getTime(log.timestamp),
-                    style: TextStyle(fontSize: 14)),
+                    style: TextStyle(fontSize: 20)),
                 Padding(
                   padding: const EdgeInsets.only(top: 24.0),
                   child: Image.memory(base64Decode(log.data)),

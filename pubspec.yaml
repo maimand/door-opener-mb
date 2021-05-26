@@ -28,6 +28,7 @@ dependencies:
   firebase_messaging: ^7.0.3
   image_picker: ^0.7.4
   intl: ^0.17.0
+  flutter_slidable:
   image_crop: 0.3.2
   http: ^0.13.3
 
