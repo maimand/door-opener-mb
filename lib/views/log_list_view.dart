@@ -32,8 +32,10 @@ class _MyHomePageState extends State<MyHomePage> {
       isLoading = true;
     });
     try {
-      logs = await FirebaseServicce.fetchLogs();
+      List<Log> templogs = await FirebaseServicce.fetchLogs();
+      templogs.sort((a,b) => a.timestamp.compareTo(b.timestamp));
       setState(() {
+        logs = templogs.reversed.toList();
         isLoading = false;
       });
     } catch (e) {
@@ -61,6 +63,8 @@ class _MyHomePageState extends State<MyHomePage> {
   showSnackBar() {
     final snackBar = SnackBar(
       content: Text('Deleted log'),
+      backgroundColor: Colors.red,
+      duration: Duration(milliseconds: 500),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
