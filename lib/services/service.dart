@@ -22,13 +22,13 @@ class Service {
     }
   }
 
-  static Future deleteUser(String name, String href) async {
+  static Future deleteUser(String? name, String? href) async {
     var request = http.MultipartRequest('DELETE', Uri.parse( BASE_URL +'/delete-face'));
     request.fields.addAll({
-      'name': name
+      'name': name!
     });
     request.fields.addAll({
-      'href': href
+      'href': href!
     });
     http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {

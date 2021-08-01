@@ -1,19 +1,15 @@
 import 'package:door_opener/model/log_model.dart';
 import 'package:door_opener/time_utility.dart';
-import 'package:door_opener/widgets/pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 class LogCard extends StatelessWidget {
   const LogCard(
-      {Key key,
-      @required this.log,
-      @required this.slidableController,
-      @required this.onDelete})
-      : super(key: key);
+      {
+      required this.log,
+      required this.onDelete})
+     ;
 
   final Log log;
-  final SlidableController slidableController;
   final Function onDelete;
 
   @override
@@ -30,7 +26,7 @@ class LogCard extends StatelessWidget {
             children: <Widget>[
               Row(children: [
                 new Text(
-                  log.name,
+                  log.name!,
                   style: TextStyle(fontSize: 18),
                 ),
                 SizedBox(width: 12,),
@@ -38,7 +34,7 @@ class LogCard extends StatelessWidget {
                     ? Icon(Icons.image, color: Colors.green,)
                     : SizedBox(),
               ]),
-              new Text(TimeUtility.getTime(log.timestamp),
+              new Text(TimeUtility.getTime(log.timestamp!),
                   style: TextStyle(fontSize: 14))
             ],
           ),

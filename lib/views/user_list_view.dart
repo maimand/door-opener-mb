@@ -17,7 +17,7 @@ class UserList extends StatefulWidget {
 }
 
 class _UserListState extends State<UserList> {
-  List<User> users = new List();
+  List<User> users = [];
   bool isLoading = true;
 
   @override
@@ -40,7 +40,7 @@ class _UserListState extends State<UserList> {
     }
   }
 
-  void deleteData(String name, String href) {
+  void deleteData(String? name, String? href) {
     try {
       Service.deleteUser(name, href);
       setState(() {
@@ -63,7 +63,7 @@ class _UserListState extends State<UserList> {
       });
 
     } catch (e) {
-      // TODO : add snack bar to show toast
+      showSnackBar("Fail create user", Colors.red);
       print(e);
     }
   }

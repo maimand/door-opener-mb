@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 class UserCard extends StatelessWidget {
   const UserCard({
-    Key key,
-    @required this.user,
+    Key? key,
+    required this.user,
   }) : super(key: key);
 
   final User user;
@@ -26,12 +26,12 @@ class UserCard extends StatelessWidget {
                   image: DecorationImage(
                       fit: BoxFit.fill,
                       image: MemoryImage(
-                        base64Decode(user.data),
+                        base64Decode(user.data!),
                       ))),
             ),
             SizedBox(width: 20),
             new Text(
-              user.name,
+              user.name!,
               style: TextStyle(fontSize: 23),
             ),
           ],

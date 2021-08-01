@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -6,18 +5,18 @@ import 'package:image_crop/image_crop.dart';
 
 // ignore: must_be_immutable
 class AddUserView extends StatefulWidget {
-  Function onSave;
-  AddUserView({Key key, Function this.onSave}) : super(key: key);
+  Function? onSave;
+  AddUserView({Key? key, this.onSave}) : super(key: key);
 
   @override
   _AddUserViewState createState() => _AddUserViewState();
 }
 
 class _AddUserViewState extends State<AddUserView> {
-  TextEditingController controller;
-  FocusNode focusNode;
-  File selectedPhoto;
-  bool isSaving;
+  TextEditingController? controller;
+  FocusNode? focusNode;
+  File? selectedPhoto;
+  late bool isSaving;
 
   @override
   void initState() {
@@ -27,44 +26,44 @@ class _AddUserViewState extends State<AddUserView> {
     focusNode = new FocusNode();
   }
 
-  Future<Map> getImageCropperCropData({
-    BuildContext context,
-    String sourcePath,
+  Future<Map?> getImageCropperCropData({
+    required BuildContext context,
+    String? sourcePath,
   }) async {
     final cropKey = GlobalKey<CropState>();
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
 
-    bool result = await showDialog(
+    bool result = await (showDialog(
         context: context,
         builder: (_) => new AlertDialog(
                 content: Container(
-                    height: height - 20,
+                    height: height - 200,
                     width: width - 20,
                     child: Crop(
-                      image: FileImage(File(sourcePath)),
+                      image: FileImage(File(sourcePath!)),
                       key: cropKey,
                       aspectRatio: 1,
                     )),
                 actions: <Widget>[
-                  FlatButton(
+                  ElevatedButton(
                     child: Text('Cancel'),
                     onPressed: () {
                       Navigator.of(context).pop(false);
                     },
                   ),
-                  FlatButton(
+                  ElevatedButton(
                     child: Text('Crop'),
                     onPressed: () {
                       Navigator.of(context).pop(true);
                     },
                   ),
-                ]));
+                ])));
 
     if (result) {
-      final options = await ImageCrop.getImageOptions(file: File(sourcePath));
-      final area = cropKey.currentState.area;
-      final scale = cropKey.currentState.scale;
+      final options = await ImageCrop.getImageOptions(file: File(sourcePath!));
+      final area = cropKey.currentState!.area!;
+      final scale = cropKey.currentState!.scale;
 
       final croppedFile = await ImageCrop.cropImage(
         file: File(sourcePath),
@@ -104,11 +103,11 @@ class _AddUserViewState extends State<AddUserView> {
   Future uploadPhoto() async {
     await pickImage();
     if (selectedPhoto != null) {
-      Map cropData = await getImageCropperCropData(
+      Map? cropData = await getImageCropperCropData(
         context: context,
-        sourcePath: selectedPhoto.path,
+        sourcePath: selectedPhoto!.path,
       );
-      String filePath = cropData.remove('filePath');
+      String filePath = cropData!.remove('filePath');
       File croppedImageFile = File(filePath);
       setState(() {
         selectedPhoto = croppedImageFile;
@@ -122,7 +121,7 @@ class _AddUserViewState extends State<AddUserView> {
     setState(() {
       isSaving = true;
     });
-    await widget.onSave(controller.text, selectedPhoto);
+    await widget.onSave!(controller!.text, selectedPhoto);
   }
 
   @override
@@ -132,7 +131,7 @@ class _AddUserViewState extends State<AddUserView> {
         title: Text('Add New Users'),
       ),
       body: GestureDetector(
-        onTap: focusNode.unfocus,
+        onTap: focusNode!.unfocus,
         child: Stack(alignment: AlignmentDirectional.center, children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -178,7 +177,7 @@ class _AddUserViewState extends State<AddUserView> {
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
                                     fit: BoxFit.fill,
-                                    image: FileImage(selectedPhoto))),
+                                    image: FileImage(selectedPhoto!))),
                           ),
                     SizedBox(
                       width: 24,
@@ -198,7 +197,7 @@ class _AddUserViewState extends State<AddUserView> {
                   height: 40,
                 ),
                 Center(
-                  child: FlatButton(
+                  child: ElevatedButton(
                       onPressed: () async {
                         await saveUser();
                         Navigator.of(context).pop();

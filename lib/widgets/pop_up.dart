@@ -21,7 +21,7 @@ class PopUp {
               height: 100,
               child: Column(
                 children: [
-                  FlatButton(
+                  ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                         onConfirm();
@@ -30,7 +30,7 @@ class PopUp {
                         'Delete',
                         style: TextStyle(color: Colors.red),
                       )),
-                  FlatButton(
+                  ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                       },

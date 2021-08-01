@@ -22,13 +22,13 @@ class FirebaseServicce {
   }
 
   static Future<List<User>> fetchUsers() async {
-    List<User> users = new List();
+    List<User> users = [];
     try {
       await databaseReference
           .child("door-opener-a3c06-default-rtdb/user")
           .once()
           .then((DataSnapshot dataSnapshot) {
-        Map<dynamic, dynamic> values = dataSnapshot.value;
+        Map<dynamic, dynamic>? values = dataSnapshot.value;
         if (values != null) {
           values.forEach((key, values) {
             users.add(new User(
@@ -39,7 +39,6 @@ class FirebaseServicce {
         }
       });
     } catch (e) {
-      // TODO
       print(e);
     }
     //if error, return empty list

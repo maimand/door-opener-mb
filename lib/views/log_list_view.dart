@@ -4,10 +4,11 @@ import 'package:door_opener/views/user_list_view.dart';
 import 'package:door_opener/widgets/log_card.dart';
 import 'package:door_opener/widgets/log_detail.dart';
 import 'package:door_opener/widgets/pop_up.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({required this.title});
 
   final String title;
 
@@ -16,7 +17,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool isLoading;
 
   @override
   void initState() {
@@ -65,9 +65,9 @@ class _MyHomePageState extends State<MyHomePage> {
             if (!snapshot.hasError &&
                 snapshot.hasData &&
                 snapshot.data != null) {
-              List<Log> logs = new List();
-              Map<dynamic, dynamic> data = snapshot.data.snapshot.value;
-              if (data != null) {
+              List<Log> logs = [];
+              Event snap = snapshot.data! as Event;
+              Map<dynamic, dynamic> data = snap.snapshot.value;
                 data.forEach((key, values) {
                   logs.add(new Log(
                       href: key,
@@ -75,7 +75,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       data: values["data"],
                       timestamp: values["timestamp"]));
                 });
-              }
               return logs.isEmpty
                   ? Center(
                       child: Text(
@@ -105,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             PopUp.showPopup(
                                 context,
                                 "Do you want to remove this log? ",
-                                () => deleteData(logs[index].href));
+                                () => deleteData(logs[index].href!));
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
