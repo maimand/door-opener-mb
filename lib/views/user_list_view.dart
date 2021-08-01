@@ -135,7 +135,7 @@ class _UserListState extends State<UserList> {
                           ),
                         );
                       },
-                      itemCount: users == null ? 0 : users.length,
+                      itemCount: users.length,
                     )),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.refresh),

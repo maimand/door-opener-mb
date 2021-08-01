@@ -5,10 +5,14 @@ import 'package:door_opener/widgets/log_card.dart';
 import 'package:door_opener/widgets/log_detail.dart';
 import 'package:door_opener/widgets/pop_up.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({required this.title});
+  MyHomePage({
+    required this.title,
+  });
 
   final String title;
 
@@ -17,11 +21,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   void deleteData(String href) {
     try {
@@ -68,13 +67,13 @@ class _MyHomePageState extends State<MyHomePage> {
               List<Log> logs = [];
               Event snap = snapshot.data! as Event;
               Map<dynamic, dynamic> data = snap.snapshot.value;
-                data.forEach((key, values) {
-                  logs.add(new Log(
-                      href: key,
-                      name: values["name"],
-                      data: values["data"],
-                      timestamp: values["timestamp"]));
-                });
+              data.forEach((key, values) {
+                logs.add(new Log(
+                    href: key,
+                    name: values["name"],
+                    data: values["data"],
+                    timestamp: values["timestamp"]));
+              });
               return logs.isEmpty
                   ? Center(
                       child: Text(
@@ -89,7 +88,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       itemBuilder: (BuildContext context, int index) {
                         return GestureDetector(
                           onTap: () {
-                            print('tap');
                             if (logs[index].data != null) {
                               Navigator.push(
                                   context,
@@ -116,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         );
                       },
-                      itemCount: logs == null ? 0 : logs.length,
+                      itemCount: logs.length,
                     );
             }
 
