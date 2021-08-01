@@ -5,29 +5,10 @@ import 'package:firebase_database/firebase_database.dart';
 class FirebaseServicce {
   static final databaseReference = FirebaseDatabase.instance.reference();
 
-  static Future<List<Log>> fetchLogs() async {
-    List<Log> logs = new List();
-    try {
-      await databaseReference
-          .child("door-opener-a3c06-default-rtdb/Images")
-          .once()
-          .then((DataSnapshot dataSnapshot) {
-        Map<dynamic, dynamic> values = dataSnapshot.value;
-        if (values != null) {
-          values.forEach((key, values) {
-            logs.add(new Log(
-                href: key,
-                name: values["name"],
-                data: values["data"],
-                timestamp: values["timestamp"]));
-          });
-        }
-      });
-    } catch (e) {
-      //TODO: Add error loading view 
-      print(e);
-    }
-    //if error, return empty list
+  static Query fetchLogStream() {
+    Query logs =  databaseReference
+          .child("door-opener-a3c06-default-rtdb/Images/")
+          ;
     return logs;
   }
 
@@ -45,7 +26,7 @@ class FirebaseServicce {
     List<User> users = new List();
     try {
       await databaseReference
-          .child("door-opener-a3c06-default-rtdb/user")
+          .child("user")
           .once()
           .then((DataSnapshot dataSnapshot) {
         Map<dynamic, dynamic> values = dataSnapshot.value;

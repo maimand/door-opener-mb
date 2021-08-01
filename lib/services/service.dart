@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 class Service {
   //TODO: Update BASE_URL
-  static const String BASE_URL = 'http://dc0ba5869187.ngrok.io'; 
+  static const String BASE_URL = 'http://e46b5b79436f.ngrok.io'; 
 
   static Future createUser(String name, File file) async {
     var request = http.MultipartRequest('POST', Uri.parse( BASE_URL + '/register-face'));

@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 
 class PopUp {
-  final BuildContext context;
-  final String text;
-  final Function onConfirm;
 
-  PopUp(this.context, {this.text, this.onConfirm});
-
-  showOptions() {
+  static showPopup(BuildContext context, String text, Function onConfirm) {
     FocusScope.of(context).unfocus();
     showDialog(
         context: context,
