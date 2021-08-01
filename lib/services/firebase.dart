@@ -1,4 +1,3 @@
-import 'package:door_opener/model/log_model.dart';
 import 'package:door_opener/model/user.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -26,7 +25,7 @@ class FirebaseServicce {
     List<User> users = new List();
     try {
       await databaseReference
-          .child("user")
+          .child("door-opener-a3c06-default-rtdb/user")
           .once()
           .then((DataSnapshot dataSnapshot) {
         Map<dynamic, dynamic> values = dataSnapshot.value;

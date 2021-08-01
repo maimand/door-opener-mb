@@ -139,36 +139,30 @@ class _AddUserViewState extends State<AddUserView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text(
-                    'Name',
-                    style: TextStyle(fontSize: 16),
-                  ),
+                SizedBox(
+                  height: 24,
+                ),
+                Text(
+                  'Name',
+                  style: TextStyle(fontSize: 16),
                 ),
                 Container(
                     alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.symmetric(vertical: 10.0),
+                    // padding: EdgeInsets.symmetric(vertical: 10.0),
                     child: TextFormField(
                       controller: controller,
+                      style: Theme.of(context).textTheme.headline5,
                       focusNode: focusNode,
                       keyboardType: TextInputType.name,
-                      // decoration: InputDecoration(
-                      //     // contentPadding: EdgeInsets.fromLTRB(16, 8, 48, 8),
-                      //     focusedBorder: OutlineInputBorder(
-                      //       borderRadius: BorderRadius.circular(4.0),
-                      //     )),
                     )),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text('Photo', style: TextStyle(fontSize: 16)),
-                ),
                 SizedBox(
-                  height: 20,
+                  height: 24,
                 ),
-                Column(
+                Text('Photo', style: TextStyle(fontSize: 16)),
+                SizedBox(
+                  height: 24,
+                ),
+                Row(
                   children: [
                     selectedPhoto == null
                         ? Row(children: [
@@ -185,21 +179,21 @@ class _AddUserViewState extends State<AddUserView> {
                                 image: DecorationImage(
                                     fit: BoxFit.fill,
                                     image: FileImage(selectedPhoto))),
-                          )
+                          ),
+                    SizedBox(
+                      width: 24,
+                    ),
+                    IconButton(
+                        icon: Icon(
+                          Icons.upload_file,
+                          size: 32.0,
+                        ),
+                        onPressed: () {
+                          FocusScope.of(context).unfocus();
+                          uploadPhoto();
+                        }),
                   ],
                 ),
-                SizedBox(
-                  height: 40,
-                ),
-                IconButton(
-                    icon: Icon(
-                      Icons.upload_file,
-                      size: 32.0,
-                    ),
-                    onPressed: () {
-                      FocusScope.of(context).unfocus();
-                      uploadPhoto();
-                    }),
                 SizedBox(
                   height: 40,
                 ),
@@ -226,17 +220,18 @@ class _AddUserViewState extends State<AddUserView> {
           ),
           isSaving
               ? Container(
-                height: double.infinity,
-                width: double.infinity,
-                decoration: BoxDecoration(color: Colors.black45.withOpacity(0.3)),
-                child: Center(
-                  child: SizedBox(
+                  height: double.infinity,
+                  width: double.infinity,
+                  decoration:
+                      BoxDecoration(color: Colors.black45.withOpacity(0.3)),
+                  child: Center(
+                    child: SizedBox(
                       child: CircularProgressIndicator(),
                       width: 60,
                       height: 60,
+                    ),
                   ),
-                ),
-              )
+                )
               : Container()
         ]),
       ),

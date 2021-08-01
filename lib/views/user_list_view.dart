@@ -4,9 +4,9 @@ import 'package:door_opener/model/user.dart';
 import 'package:door_opener/services/firebase.dart';
 import 'package:door_opener/services/service.dart';
 import 'package:door_opener/views/add_user_view.dart';
+import 'package:door_opener/widgets/pop_up.dart';
 import 'package:door_opener/widgets/user_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 // ignore: must_be_immutable
 class UserList extends StatefulWidget {
@@ -19,7 +19,6 @@ class UserList extends StatefulWidget {
 class _UserListState extends State<UserList> {
   List<User> users = new List();
   bool isLoading = true;
-  final SlidableController slidableController = SlidableController();
 
   @override
   void initState() {
@@ -123,15 +122,16 @@ class _UserListState extends State<UserList> {
                       itemBuilder: (BuildContext context, int index) {
                         return GestureDetector(
                           onLongPress: () {
-                            Service.deleteUser(
-                                users[index].name, users[index].href);
+                            PopUp.showPopup(
+                                context,
+                                "Do you want to remove this user? ",
+                                () => deleteData(users[index].name, users[index].href));
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: UserCard(
                                 user: users[index],
-                                slidableController: slidableController,
-                                onDelete: deleteData),
+                                ),
                           ),
                         );
                       },
