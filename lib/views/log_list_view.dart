@@ -5,7 +5,6 @@ import 'package:door_opener/widgets/log_card.dart';
 import 'package:door_opener/widgets/log_detail.dart';
 import 'package:door_opener/widgets/pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -18,7 +17,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool isLoading;
-  final SlidableController slidableController = SlidableController();
 
   @override
   void initState() {
@@ -114,7 +112,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                 vertical: 4.0, horizontal: 12),
                             child: LogCard(
                               log: logs[index],
-                              slidableController: slidableController,
                               onDelete: deleteData,
                             ),
                           ),
