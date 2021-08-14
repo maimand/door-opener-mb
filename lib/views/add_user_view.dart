@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:camera/camera.dart';
+import 'package:door_opener/views/camera_view.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:image_crop/image_crop.dart';
 
 // ignore: must_be_immutable
 class AddUserView extends StatefulWidget {
@@ -15,7 +15,8 @@ class AddUserView extends StatefulWidget {
 class _AddUserViewState extends State<AddUserView> {
   TextEditingController? controller;
   FocusNode? focusNode;
-  File? selectedPhoto;
+  File? video;
+  File? image;
   late bool isSaving;
 
   @override
@@ -26,102 +27,34 @@ class _AddUserViewState extends State<AddUserView> {
     focusNode = new FocusNode();
   }
 
-  Future<Map?> getImageCropperCropData({
-    required BuildContext context,
-    String? sourcePath,
-  }) async {
-    final cropKey = GlobalKey<CropState>();
-    var height = MediaQuery.of(context).size.height;
-    var width = MediaQuery.of(context).size.width;
-
-    bool result = await (showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-                content: Container(
-                    height: height - 200,
-                    width: width - 20,
-                    child: Crop(
-                      image: FileImage(File(sourcePath!)),
-                      key: cropKey,
-                      aspectRatio: 1,
-                    )),
-                actions: <Widget>[
-                  ElevatedButton(
-                    child: Text('Cancel'),
-                    onPressed: () {
-                      Navigator.of(context).pop(false);
-                    },
-                  ),
-                  ElevatedButton(
-                    child: Text('Crop'),
-                    onPressed: () {
-                      Navigator.of(context).pop(true);
-                    },
-                  ),
-                ])));
-
-    if (result) {
-      final options = await ImageCrop.getImageOptions(file: File(sourcePath!));
-      final area = cropKey.currentState!.area!;
-      final scale = cropKey.currentState!.scale;
-
-      final croppedFile = await ImageCrop.cropImage(
-        file: File(sourcePath),
-        area: area,
-      );
-
-      return {
-        "scale": scale,
-        "w": (area.right * options.width).round() -
-            (area.left * options.width).round(),
-        "h": (area.bottom * options.height).round() -
-            (area.top * options.height).round(),
-        "x": (area.left * options.width).round(),
-        "y": (area.top * options.height).round(),
-        "x2": (area.right * options.width).round(),
-        "y2": (area.bottom * options.height).round(),
-        "filePath": croppedFile.path,
-      };
-    } else {
-      return null;
-    }
+  void addVideo(XFile recordedVideo, XFile capturedImage) {
+    video = File(recordedVideo.path);
+    image = File(capturedImage.path);
+    setState(() {});
   }
 
-  Future pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile =
-        await picker.getImage(source: ImageSource.camera, imageQuality: 50);
-    setState(() {
-      if (pickedFile != null) {
-        selectedPhoto = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
-    });
+  Future recordFace() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CameraScreen(
+          addVideo: addVideo,
+        ),
+      ),
+    );
   }
 
-  Future uploadPhoto() async {
-    await pickImage();
-    if (selectedPhoto != null) {
-      Map? cropData = await getImageCropperCropData(
-        context: context,
-        sourcePath: selectedPhoto!.path,
-      );
-      String filePath = cropData!.remove('filePath');
-      File croppedImageFile = File(filePath);
+  Future<void> saveUser() async {
+    if (controller!.text.isNotEmpty && video != null && image!= null) {
       setState(() {
-        selectedPhoto = croppedImageFile;
+        isSaving = true;
       });
-    } else {
-      print("No image selected.");
+      await widget.onSave!(controller!.text, video, image);
+      setState(() {
+        isSaving = false;
+      });
+      Navigator.of(context).pop();
     }
-  }
-
-  Future saveUser() async {
-    setState(() {
-      isSaving = true;
-    });
-    await widget.onSave!(controller!.text, selectedPhoto);
   }
 
   @override
@@ -163,10 +96,10 @@ class _AddUserViewState extends State<AddUserView> {
                 ),
                 Row(
                   children: [
-                    selectedPhoto == null
+                    video == null
                         ? Row(children: [
                             Text(
-                              'No image selected.',
+                              'No video record',
                               style: TextStyle(fontSize: 12),
                             ),
                           ])
@@ -177,7 +110,7 @@ class _AddUserViewState extends State<AddUserView> {
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
                                     fit: BoxFit.fill,
-                                    image: FileImage(selectedPhoto!))),
+                                    image: FileImage(image!))),
                           ),
                     SizedBox(
                       width: 24,
@@ -189,7 +122,7 @@ class _AddUserViewState extends State<AddUserView> {
                         ),
                         onPressed: () {
                           FocusScope.of(context).unfocus();
-                          uploadPhoto();
+                          recordFace();
                         }),
                   ],
                 ),
@@ -200,7 +133,6 @@ class _AddUserViewState extends State<AddUserView> {
                   child: ElevatedButton(
                       onPressed: () async {
                         await saveUser();
-                        Navigator.of(context).pop();
                       },
                       child: Container(
                         width: 180,

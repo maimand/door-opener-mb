@@ -4,11 +4,12 @@ import 'package:door_opener/services/endpoint.dart';
 import 'package:http/http.dart' as http;
 
 class Service {
-  static Future createUser(String name, File file) async {
+  static Future createUser(String name, File video, File image) async {
       var request = http.MultipartRequest(
           'POST', Uri.parse(Endpoint.BASE_URL + '/register-face'));
       request.fields.addAll({'name': name});
-      request.files.add(await http.MultipartFile.fromPath('file', file.path));
+      request.files.add(await http.MultipartFile.fromPath('video', video.path));
+      request.files.add(await http.MultipartFile.fromPath('image', image.path));
       await request.send();
     
   }

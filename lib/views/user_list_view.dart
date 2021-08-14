@@ -56,11 +56,11 @@ class _UserListState extends State<UserList> {
     }
   }
 
-  Future saveUser(String name, File file) async {
+  Future saveUser(String name, File video, File image) async {
     try {
-      await Service.createUser(name, file);
+      await Service.createUser(name, video, image);
       setState(() {
-        final bytes = file.readAsBytesSync();
+        final bytes = image.readAsBytesSync();
         String img64 = base64Encode(bytes);
         users.add(new User(name: name, data: img64));
         PopUp.showSnackBar(
