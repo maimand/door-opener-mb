@@ -124,6 +124,7 @@ class _UserListState extends State<UserList> {
                             PopUp.showPopup(
                                 context,
                                 "Do you want to remove this user? ",
+                                Colors.red,
                                 () => deleteData(
                                     users[index].name, users[index].href));
                           },

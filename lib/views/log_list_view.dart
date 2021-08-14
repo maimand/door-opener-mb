@@ -20,13 +20,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   void deleteLog(String href) {
     try {
       FirebaseServicce.deleteLogs(href);
-      PopUp.showSnackBar(context: context, message: 'Deleted log', color:  Colors.red);
+      PopUp.showSnackBar(
+          context: context, message: 'Deleted log', color: Colors.red);
     } catch (e) {
-      PopUp.showSnackBar(context: context, message: 'Error', color:  Colors.red);
+      PopUp.showSnackBar(context: context, message: 'Error', color: Colors.red);
     }
   }
 
@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Service.remoteOpenDoor();
       PopUp.showSnackBar(context: context, message: 'Door Open');
     } catch (e) {
-      PopUp.showSnackBar(context: context, message: 'Error', color:  Colors.red);
+      PopUp.showSnackBar(context: context, message: 'Error', color: Colors.red);
     }
   }
 
@@ -58,10 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
               icon: Icon(Icons.open_in_browser),
               onPressed: () {
-                PopUp.showPopup(
-                                context,
-                                "Do you want to remove this log? ",
-                                () => remoteOpenDoor());
+                PopUp.showPopup(context, "Do you want to open door? ",
+                    Colors.white, () => remoteOpenDoor());
               }),
         ],
       ),
@@ -100,8 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => LogDetail(
-                                        log: logs[index],
-                                        deleteLog: deleteLog),
+                                        log: logs[index], deleteLog: deleteLog),
                                   ));
                             }
                           },
@@ -109,6 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             PopUp.showPopup(
                                 context,
                                 "Do you want to remove this log? ",
+                                Colors.red,
                                 () => deleteLog(logs[index].href!));
                           },
                           child: Padding(
