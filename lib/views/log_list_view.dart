@@ -1,13 +1,12 @@
 import 'package:door_opener/model/log_model.dart';
 import 'package:door_opener/services/firebase.dart';
+import 'package:door_opener/services/service.dart';
 import 'package:door_opener/views/user_list_view.dart';
 import 'package:door_opener/widgets/log_card.dart';
 import 'package:door_opener/widgets/log_detail.dart';
 import 'package:door_opener/widgets/pop_up.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({
@@ -22,22 +21,22 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  void deleteData(String href) {
+  void deleteLog(String href) {
     try {
       FirebaseServicce.deleteLogs(href);
-      showSnackBar();
+      PopUp.showSnackBar(context: context, message: 'Deleted log', color:  Colors.red);
     } catch (e) {
-      print(e);
+      PopUp.showSnackBar(context: context, message: 'Error', color:  Colors.red);
     }
   }
 
-  showSnackBar() {
-    final snackBar = SnackBar(
-      content: Text('Deleted log'),
-      backgroundColor: Colors.red,
-      duration: Duration(milliseconds: 500),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  void remoteOpenDoor() {
+    try {
+      Service.remoteOpenDoor();
+      PopUp.showSnackBar(context: context, message: 'Door Open');
+    } catch (e) {
+      PopUp.showSnackBar(context: context, message: 'Error', color:  Colors.red);
+    }
   }
 
   @override
@@ -55,6 +54,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     builder: (context) => UserList(),
                   ),
                 );
+              }),
+          IconButton(
+              icon: Icon(Icons.open_in_browser),
+              onPressed: () {
+                PopUp.showPopup(
+                                context,
+                                "Do you want to remove this log? ",
+                                () => remoteOpenDoor());
               }),
         ],
       ),
@@ -94,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   MaterialPageRoute(
                                     builder: (context) => LogDetail(
                                         log: logs[index],
-                                        deleteLog: deleteData),
+                                        deleteLog: deleteLog),
                                   ));
                             }
                           },
@@ -102,14 +109,14 @@ class _MyHomePageState extends State<MyHomePage> {
                             PopUp.showPopup(
                                 context,
                                 "Do you want to remove this log? ",
-                                () => deleteData(logs[index].href!));
+                                () => deleteLog(logs[index].href!));
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 4.0, horizontal: 12),
                             child: LogCard(
                               log: logs[index],
-                              onDelete: deleteData,
+                              onDelete: deleteLog,
                             ),
                           ),
                         );

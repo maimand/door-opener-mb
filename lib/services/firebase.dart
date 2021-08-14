@@ -5,44 +5,31 @@ class FirebaseServicce {
   static final databaseReference = FirebaseDatabase.instance.reference();
 
   static Query fetchLogStream() {
-    Query logs =  databaseReference
-          .child("door-opener-a3c06-default-rtdb/Images/")
-          ;
+    Query logs =
+        databaseReference.child("door-opener-a3c06-default-rtdb/Images/");
     return logs;
   }
 
   static void deleteLogs(String href) async {
-    try {
-      databaseReference
-          .child("door-opener-a3c06-default-rtdb/Images/" + href)
-          .remove();
-    } catch (e) {
-      print(e);
-    }
+    databaseReference
+        .child("door-opener-a3c06-default-rtdb/Images/" + href)
+        .remove();
   }
 
   static Future<List<User>> fetchUsers() async {
     List<User> users = [];
-    try {
-      await databaseReference
-          .child("door-opener-a3c06-default-rtdb/user")
-          .once()
-          .then((DataSnapshot dataSnapshot) {
-        Map<dynamic, dynamic>? values = dataSnapshot.value;
-        if (values != null) {
-          values.forEach((key, values) {
-            users.add(new User(
-              href: key,
-              name: values["name"], 
-              data: values["data"]));
-          });
-        }
-      });
-    } catch (e) {
-      print(e);
-    }
-    //if error, return empty list
+    await databaseReference
+        .child("door-opener-a3c06-default-rtdb/user")
+        .once()
+        .then((DataSnapshot dataSnapshot) {
+      Map<dynamic, dynamic>? values = dataSnapshot.value;
+      if (values != null) {
+        values.forEach((key, values) {
+          users.add(
+              new User(href: key, name: values["name"], data: values["data"]));
+        });
+      }
+    });
     return users;
   }
-
 }

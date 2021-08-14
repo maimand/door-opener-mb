@@ -36,6 +36,7 @@ class _UserListState extends State<UserList> {
         isLoading = false;
       });
     } catch (e) {
+      users = [];
       print(e);
     }
   }
@@ -45,9 +46,12 @@ class _UserListState extends State<UserList> {
       Service.deleteUser(name, href);
       setState(() {
         users.removeWhere((element) => element.href == href);
-        showSnackBar("Deleted user", Colors.redAccent);
+        PopUp.showSnackBar(
+            context: context, message: "Deleted user", color: Colors.redAccent);
       });
     } catch (e) {
+      PopUp.showSnackBar(
+          context: context, message: "Error", color: Colors.redAccent);
       print(e);
     }
   }
@@ -59,22 +63,18 @@ class _UserListState extends State<UserList> {
         final bytes = file.readAsBytesSync();
         String img64 = base64Encode(bytes);
         users.add(new User(name: name, data: img64));
-        showSnackBar("Created user", Colors.greenAccent);
+        PopUp.showSnackBar(
+            context: context,
+            message: "Created user",
+            color: Colors.greenAccent);
       });
-
     } catch (e) {
-      showSnackBar("Fail create user", Colors.red);
+      PopUp.showSnackBar(
+          context: context,
+          message: "Fail create user",
+          color: Colors.redAccent);
       print(e);
     }
-  }
-
-  showSnackBar(String message, Color color) {
-    final snackBar = SnackBar(
-      content: Text(message),
-      backgroundColor: color,
-      duration: Duration(milliseconds: 500),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Future refreshUserList() async {
@@ -83,7 +83,6 @@ class _UserListState extends State<UserList> {
     });
     await getList();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -125,13 +124,14 @@ class _UserListState extends State<UserList> {
                             PopUp.showPopup(
                                 context,
                                 "Do you want to remove this user? ",
-                                () => deleteData(users[index].name, users[index].href));
+                                () => deleteData(
+                                    users[index].name, users[index].href));
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: UserCard(
-                                user: users[index],
-                                ),
+                              user: users[index],
+                            ),
                           ),
                         );
                       },

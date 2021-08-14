@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class PopUp {
-
   static showPopup(BuildContext context, String text, Function onConfirm) {
     FocusScope.of(context).unfocus();
     showDialog(
@@ -42,5 +41,15 @@ class PopUp {
             ),
           );
         });
+  }
+
+  static void showSnackBar(
+      {required BuildContext context, required String message, Color? color}) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      backgroundColor: color,
+      duration: Duration(milliseconds: 500),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
