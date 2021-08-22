@@ -1,13 +1,17 @@
 import 'package:door_opener/model/log_model.dart';
 import 'package:door_opener/services/firebase.dart';
+import 'package:door_opener/services/service.dart';
 import 'package:door_opener/views/user_list_view.dart';
 import 'package:door_opener/widgets/log_card.dart';
 import 'package:door_opener/widgets/log_detail.dart';
+import 'package:door_opener/widgets/pop_up.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({
+    required this.title,
+  });
 
   final String title;
 
@@ -16,57 +20,23 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Log> logs = new List();
-  bool isLoading;
-  final SlidableController slidableController = SlidableController();
-
-  @override
-  void initState() {
-    getList();
-    super.initState();
-  }
-
-  // Retrive the list of logs when the user open door
-  Future getList() async {
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      List<Log> templogs = await FirebaseServicce.fetchLogs();
-      templogs.sort((a,b) => a.timestamp.compareTo(b.timestamp));
-      setState(() {
-        logs = templogs.reversed.toList();
-        isLoading = false;
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future refreshLogList() async {
-    logs.clear();
-    await getList();
-  }
-
-  void deleteData(String href) {
+  void deleteLog(String href) {
     try {
       FirebaseServicce.deleteLogs(href);
-      setState(() {
-        logs.removeWhere((element) => element.href == href);
-        showSnackBar();
-      });
+      PopUp.showSnackBar(
+          context: context, message: 'Deleted log', color: Colors.red);
     } catch (e) {
-      print(e);
+      PopUp.showSnackBar(context: context, message: 'Error', color: Colors.red);
     }
   }
 
-  showSnackBar() {
-    final snackBar = SnackBar(
-      content: Text('Deleted log'),
-      backgroundColor: Colors.red,
-      duration: Duration(milliseconds: 500),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  void remoteOpenDoor() {
+    try {
+      Service.remoteOpenDoor();
+      PopUp.showSnackBar(context: context, message: 'Door Open');
+    } catch (e) {
+      PopUp.showSnackBar(context: context, message: 'Error', color: Colors.red);
+    }
   }
 
   @override
@@ -85,21 +55,38 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 );
               }),
+          IconButton(
+              icon: Icon(Icons.open_in_browser),
+              onPressed: () {
+                PopUp.showPopup(context, "Do you want to open door? ",
+                    Colors.white, () => remoteOpenDoor());
+              }),
         ],
       ),
-      body: Center(
-          child: isLoading
-              ? SizedBox(
-                  child: CircularProgressIndicator(),
-                  width: 60,
-                  height: 60,
-                )
-              : logs.isEmpty
-                  ? Text(
-                      'Empty log list',
-                      style: TextStyle(
-                        color: Colors.black26,
-                        fontSize: 18,
+      body: StreamBuilder(
+          stream: FirebaseServicce.fetchLogStream().onValue,
+          builder: (context, snapshot) {
+            if (!snapshot.hasError &&
+                snapshot.hasData &&
+                snapshot.data != null) {
+              List<Log> logs = [];
+              Event snap = snapshot.data! as Event;
+              Map<dynamic, dynamic> data = snap.snapshot.value;
+              data.forEach((key, values) {
+                logs.add(new Log(
+                    href: key,
+                    name: values["name"],
+                    data: values["data"],
+                    timestamp: values["timestamp"]));
+              });
+              return logs.isEmpty
+                  ? Center(
+                      child: Text(
+                        'Empty log list',
+                        style: TextStyle(
+                          color: Colors.black26,
+                          fontSize: 18,
+                        ),
                       ),
                     )
                   : ListView.builder(
@@ -111,27 +98,38 @@ class _MyHomePageState extends State<MyHomePage> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => LogDetail(
-                                        log: logs[index],
-                                        deleteLog: deleteData),
+                                        log: logs[index], deleteLog: deleteLog),
                                   ));
                             }
                           },
+                          onLongPress: () {
+                            PopUp.showPopup(
+                                context,
+                                "Do you want to remove this log? ",
+                                Colors.red,
+                                () => deleteLog(logs[index].href!));
+                          },
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4.0, horizontal: 12),
                             child: LogCard(
                               log: logs[index],
-                              slidableController: slidableController,
-                              onDelete: deleteData,
+                              onDelete: deleteLog,
                             ),
                           ),
                         );
                       },
-                      itemCount: logs == null ? 0 : logs.length,
-                    )),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.refresh),
-        onPressed: refreshLogList,
-      ),
+                      itemCount: logs.length,
+                    );
+            }
+
+            return Center(
+                child: SizedBox(
+              child: CircularProgressIndicator(),
+              width: 60,
+              height: 60,
+            ));
+          }),
     );
   }
 }

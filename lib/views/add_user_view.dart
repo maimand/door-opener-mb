@@ -1,23 +1,23 @@
-import 'dart:ffi';
 import 'dart:io';
+import 'package:camera/camera.dart';
+import 'package:door_opener/views/camera_view.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:image_crop/image_crop.dart';
 
 // ignore: must_be_immutable
 class AddUserView extends StatefulWidget {
-  Function onSave;
-  AddUserView({Key key, Function this.onSave}) : super(key: key);
+  Function? onSave;
+  AddUserView({Key? key, this.onSave}) : super(key: key);
 
   @override
   _AddUserViewState createState() => _AddUserViewState();
 }
 
 class _AddUserViewState extends State<AddUserView> {
-  TextEditingController controller;
-  FocusNode focusNode;
-  File selectedPhoto;
-  bool isSaving;
+  TextEditingController? controller;
+  FocusNode? focusNode;
+  File? video;
+  File? image;
+  late bool isSaving;
 
   @override
   void initState() {
@@ -27,102 +27,34 @@ class _AddUserViewState extends State<AddUserView> {
     focusNode = new FocusNode();
   }
 
-  Future<Map> getImageCropperCropData({
-    BuildContext context,
-    String sourcePath,
-  }) async {
-    final cropKey = GlobalKey<CropState>();
-    var height = MediaQuery.of(context).size.height;
-    var width = MediaQuery.of(context).size.width;
-
-    bool result = await showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-                content: Container(
-                    height: height - 20,
-                    width: width - 20,
-                    child: Crop(
-                      image: FileImage(File(sourcePath)),
-                      key: cropKey,
-                      aspectRatio: 1,
-                    )),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text('Cancel'),
-                    onPressed: () {
-                      Navigator.of(context).pop(false);
-                    },
-                  ),
-                  FlatButton(
-                    child: Text('Crop'),
-                    onPressed: () {
-                      Navigator.of(context).pop(true);
-                    },
-                  ),
-                ]));
-
-    if (result) {
-      final options = await ImageCrop.getImageOptions(file: File(sourcePath));
-      final area = cropKey.currentState.area;
-      final scale = cropKey.currentState.scale;
-
-      final croppedFile = await ImageCrop.cropImage(
-        file: File(sourcePath),
-        area: area,
-      );
-
-      return {
-        "scale": scale,
-        "w": (area.right * options.width).round() -
-            (area.left * options.width).round(),
-        "h": (area.bottom * options.height).round() -
-            (area.top * options.height).round(),
-        "x": (area.left * options.width).round(),
-        "y": (area.top * options.height).round(),
-        "x2": (area.right * options.width).round(),
-        "y2": (area.bottom * options.height).round(),
-        "filePath": croppedFile.path,
-      };
-    } else {
-      return null;
-    }
+  void addVideo(XFile recordedVideo, XFile capturedImage) {
+    video = File(recordedVideo.path);
+    image = File(capturedImage.path);
+    setState(() {});
   }
 
-  Future pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile =
-        await picker.getImage(source: ImageSource.camera, imageQuality: 50);
-    setState(() {
-      if (pickedFile != null) {
-        selectedPhoto = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
-    });
+  Future recordFace() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CameraScreen(
+          addVideo: addVideo,
+        ),
+      ),
+    );
   }
 
-  Future uploadPhoto() async {
-    await pickImage();
-    if (selectedPhoto != null) {
-      Map cropData = await getImageCropperCropData(
-        context: context,
-        sourcePath: selectedPhoto.path,
-      );
-      String filePath = cropData.remove('filePath');
-      File croppedImageFile = File(filePath);
+  Future<void> saveUser() async {
+    if (controller!.text.isNotEmpty && video != null && image!= null) {
       setState(() {
-        selectedPhoto = croppedImageFile;
+        isSaving = true;
       });
-    } else {
-      print("No image selected.");
+      await widget.onSave!(controller!.text, video, image);
+      setState(() {
+        isSaving = false;
+      });
+      Navigator.of(context).pop();
     }
-  }
-
-  Future saveUser() async {
-    setState(() {
-      isSaving = true;
-    });
-    await widget.onSave(controller.text, selectedPhoto);
   }
 
   @override
@@ -132,48 +64,42 @@ class _AddUserViewState extends State<AddUserView> {
         title: Text('Add New Users'),
       ),
       body: GestureDetector(
-        onTap: focusNode.unfocus,
+        onTap: focusNode!.unfocus,
         child: Stack(alignment: AlignmentDirectional.center, children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text(
-                    'Name',
-                    style: TextStyle(fontSize: 16),
-                  ),
+                SizedBox(
+                  height: 24,
+                ),
+                Text(
+                  'Name',
+                  style: TextStyle(fontSize: 16),
                 ),
                 Container(
                     alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.symmetric(vertical: 10.0),
+                    // padding: EdgeInsets.symmetric(vertical: 10.0),
                     child: TextFormField(
                       controller: controller,
+                      style: Theme.of(context).textTheme.headline5,
                       focusNode: focusNode,
                       keyboardType: TextInputType.name,
-                      // decoration: InputDecoration(
-                      //     // contentPadding: EdgeInsets.fromLTRB(16, 8, 48, 8),
-                      //     focusedBorder: OutlineInputBorder(
-                      //       borderRadius: BorderRadius.circular(4.0),
-                      //     )),
                     )),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text('Photo', style: TextStyle(fontSize: 16)),
-                ),
                 SizedBox(
-                  height: 20,
+                  height: 24,
                 ),
-                Column(
+                Text('Photo', style: TextStyle(fontSize: 16)),
+                SizedBox(
+                  height: 24,
+                ),
+                Row(
                   children: [
-                    selectedPhoto == null
+                    video == null
                         ? Row(children: [
                             Text(
-                              'No image selected.',
+                              'No video record',
                               style: TextStyle(fontSize: 12),
                             ),
                           ])
@@ -184,30 +110,29 @@ class _AddUserViewState extends State<AddUserView> {
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
                                     fit: BoxFit.fill,
-                                    image: FileImage(selectedPhoto))),
-                          )
+                                    image: FileImage(image!))),
+                          ),
+                    SizedBox(
+                      width: 24,
+                    ),
+                    IconButton(
+                        icon: Icon(
+                          Icons.upload_file,
+                          size: 32.0,
+                        ),
+                        onPressed: () {
+                          FocusScope.of(context).unfocus();
+                          recordFace();
+                        }),
                   ],
                 ),
                 SizedBox(
                   height: 40,
                 ),
-                IconButton(
-                    icon: Icon(
-                      Icons.upload_file,
-                      size: 32.0,
-                    ),
-                    onPressed: () {
-                      FocusScope.of(context).unfocus();
-                      uploadPhoto();
-                    }),
-                SizedBox(
-                  height: 40,
-                ),
                 Center(
-                  child: FlatButton(
+                  child: ElevatedButton(
                       onPressed: () async {
                         await saveUser();
-                        Navigator.of(context).pop();
                       },
                       child: Container(
                         width: 180,
@@ -226,17 +151,18 @@ class _AddUserViewState extends State<AddUserView> {
           ),
           isSaving
               ? Container(
-                height: double.infinity,
-                width: double.infinity,
-                decoration: BoxDecoration(color: Colors.black45.withOpacity(0.3)),
-                child: Center(
-                  child: SizedBox(
+                  height: double.infinity,
+                  width: double.infinity,
+                  decoration:
+                      BoxDecoration(color: Colors.black45.withOpacity(0.3)),
+                  child: Center(
+                    child: SizedBox(
                       child: CircularProgressIndicator(),
                       width: 60,
                       height: 60,
+                    ),
                   ),
-                ),
-              )
+                )
               : Container()
         ]),
       ),

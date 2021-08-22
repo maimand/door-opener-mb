@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class LogDetail extends StatelessWidget {
-  final Log log;
-  Function deleteLog;
+  final Log? log;
+  Function? deleteLog;
   LogDetail({this.log, this.deleteLog});
 
   @override
@@ -18,7 +18,7 @@ class LogDetail extends StatelessWidget {
         actions: [
           GestureDetector(
               onTap: () {
-                deleteLog(this.log.href);
+                deleteLog!(this.log!.href);
                 Navigator.of(context).pop();
               },
               child: Icon(Icons.delete))
@@ -32,12 +32,12 @@ class LogDetail extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Who : " + log.name, style: TextStyle(fontSize: 20)),
-                Text("When: " + TimeUtility.getTime(log.timestamp),
+                Text("Who : " + log!.name!, style: TextStyle(fontSize: 20)),
+                Text("When: " + TimeUtility.getTime(log!.timestamp!),
                     style: TextStyle(fontSize: 20)),
                 Padding(
                   padding: const EdgeInsets.only(top: 24.0),
-                  child: Image.memory(base64Decode(log.data)),
+                  child: Image.memory(base64Decode(log!.data!)),
                 )
               ],
             ),

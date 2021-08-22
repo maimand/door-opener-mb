@@ -4,9 +4,9 @@ import 'package:door_opener/model/user.dart';
 import 'package:door_opener/services/firebase.dart';
 import 'package:door_opener/services/service.dart';
 import 'package:door_opener/views/add_user_view.dart';
+import 'package:door_opener/widgets/pop_up.dart';
 import 'package:door_opener/widgets/user_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 // ignore: must_be_immutable
 class UserList extends StatefulWidget {
@@ -17,9 +17,8 @@ class UserList extends StatefulWidget {
 }
 
 class _UserListState extends State<UserList> {
-  List<User> users = new List();
+  List<User> users = [];
   bool isLoading = true;
-  final SlidableController slidableController = SlidableController();
 
   @override
   void initState() {
@@ -37,45 +36,45 @@ class _UserListState extends State<UserList> {
         isLoading = false;
       });
     } catch (e) {
+      users = [];
       print(e);
     }
   }
 
-  void deleteData(String name, String href) {
+  void deleteData(String? name, String? href) {
     try {
       Service.deleteUser(name, href);
       setState(() {
         users.removeWhere((element) => element.href == href);
-        showSnackBar("Deleted user", Colors.redAccent);
+        PopUp.showSnackBar(
+            context: context, message: "Deleted user", color: Colors.redAccent);
       });
     } catch (e) {
+      PopUp.showSnackBar(
+          context: context, message: "Error", color: Colors.redAccent);
       print(e);
     }
   }
 
-  Future saveUser(String name, File file) async {
+  Future saveUser(String name, File video, File image) async {
     try {
-      await Service.createUser(name, file);
+      await Service.createUser(name, video, image);
       setState(() {
-        final bytes = file.readAsBytesSync();
+        final bytes = image.readAsBytesSync();
         String img64 = base64Encode(bytes);
         users.add(new User(name: name, data: img64));
-        showSnackBar("Created user", Colors.greenAccent);
+        PopUp.showSnackBar(
+            context: context,
+            message: "Created user",
+            color: Colors.greenAccent);
       });
-
     } catch (e) {
-      // TODO : add snack bar to show toast
+      PopUp.showSnackBar(
+          context: context,
+          message: "Fail create user",
+          color: Colors.redAccent);
       print(e);
     }
-  }
-
-  showSnackBar(String message, Color color) {
-    final snackBar = SnackBar(
-      content: Text(message),
-      backgroundColor: color,
-      duration: Duration(milliseconds: 500),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Future refreshUserList() async {
@@ -84,7 +83,6 @@ class _UserListState extends State<UserList> {
     });
     await getList();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -123,19 +121,22 @@ class _UserListState extends State<UserList> {
                       itemBuilder: (BuildContext context, int index) {
                         return GestureDetector(
                           onLongPress: () {
-                            Service.deleteUser(
-                                users[index].name, users[index].href);
+                            PopUp.showPopup(
+                                context,
+                                "Do you want to remove this user? ",
+                                Colors.red,
+                                () => deleteData(
+                                    users[index].name, users[index].href));
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: UserCard(
-                                user: users[index],
-                                slidableController: slidableController,
-                                onDelete: deleteData),
+                              user: users[index],
+                            ),
                           ),
                         );
                       },
-                      itemCount: users == null ? 0 : users.length,
+                      itemCount: users.length,
                     )),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.refresh),

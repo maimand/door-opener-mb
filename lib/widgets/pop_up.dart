@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PopUp {
-  final BuildContext context;
-  final String text;
-  final Function onConfirm;
-
-  PopUp(this.context, {this.text, this.onConfirm});
-
-  showOptions() {
+  static showPopup(BuildContext context, String text, Color textColor, Function onConfirm) {
     FocusScope.of(context).unfocus();
     showDialog(
         context: context,
@@ -17,35 +11,46 @@ class PopUp {
             title: Text(text),
             titleTextStyle: TextStyle(
                 color: Colors.black,
-                fontSize: 16.0,
+                fontSize: 20.0,
                 fontWeight: FontWeight.w400),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0)),
             contentPadding: EdgeInsets.only(left: 32, right: 32, top: 16),
-            content: Container(
-              height: 100,
-              child: Column(
+            content: Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  FlatButton(
+                  ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                         onConfirm();
                       },
                       child: Text(
-                        'Delete',
-                        style: TextStyle(color: Colors.red),
+                        'YES',
+                        style: TextStyle(color: textColor),
                       )),
-                  FlatButton(
+                  ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
                       child: Text(
-                        'Cancel',
+                        'NO',
                       )),
                 ],
               ),
             ),
           );
         });
+  }
+
+  static void showSnackBar(
+      {required BuildContext context, required String message, Color? color}) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      backgroundColor: color,
+      duration: Duration(milliseconds: 500),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
