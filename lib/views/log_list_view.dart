@@ -79,7 +79,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     data: values["data"],
                     timestamp: values["timestamp"]));
               });
-              return logs.isEmpty
+              final reversed = new List.from(logs.reversed);
+              return reversed.isEmpty
                   ? Center(
                       child: Text(
                         'Empty log list',
@@ -93,12 +94,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       itemBuilder: (BuildContext context, int index) {
                         return GestureDetector(
                           onTap: () {
-                            if (logs[index].data != null) {
+                            if (reversed[index].data != null) {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => LogDetail(
-                                        log: logs[index], deleteLog: deleteLog),
+                                        log: reversed[index], deleteLog: deleteLog),
                                   ));
                             }
                           },
@@ -107,19 +108,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                 context,
                                 "Do you want to remove this log? ",
                                 Colors.red,
-                                () => deleteLog(logs[index].href!));
+                                () => deleteLog(reversed[index].href!));
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 4.0, horizontal: 12),
                             child: LogCard(
-                              log: logs[index],
+                              log: reversed[index],
                               onDelete: deleteLog,
                             ),
                           ),
                         );
                       },
-                      itemCount: logs.length,
+                      itemCount: reversed.length,
                     );
             }
 
